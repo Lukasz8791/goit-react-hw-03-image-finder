@@ -48,7 +48,6 @@ const ImageGallery = ({ query }) => {
     setCurrentPage(1);
     setHasMore(true);
     fetchImages();
-    // eslint-disable-next-line
   }, [query]);
 
   const handleLoadMore = () => {
