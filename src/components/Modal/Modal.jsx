@@ -22,10 +22,6 @@ const Modal = ({ imageUrl, onClose }) => {
     };
   }, [onClose]);
 
-  const handleClose = () => {
-    onClose();
-  };
-
   return (
     <div className={styles.overlay} onClick={handleCloseModal}>
       <div className={styles.modal}>
