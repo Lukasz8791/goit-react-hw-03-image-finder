@@ -12,21 +12,20 @@ const ImageGallery = ({ query }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [hasMore, setHasMore] = useState(true);
 
-  const fetchImages = async () => {
+  const fetchImages = async page => {
+    return fetch(
+      `https://pixabay.com/api/?q=${query}&page=${page}&key=41083655-82ce4b08f1604d0cb0165a8b6&image_type=photo&orientation=horizontal&per_page=12`
+    );
+  };
+
+  const loadImages = async () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `https://pixabay.com/api/?q=${query}&page=${currentPage}&key=41083655-82ce4b08f1604d0cb0165a8b6&image_type=photo&orientation=horizontal&per_page=12`
-      );
-
+      const response = await fetchImages(currentPage);
       if (response.ok) {
         const data = await response.json();
-        if (currentPage === 1) {
-          setImages(data.hits);
-        } else {
-          setImages(prevImages => [...prevImages, ...data.hits]);
-        }
+        setImages(prevImages => [...prevImages, ...data.hits]);
 
         if (data.hits.length < 12) {
           setHasMore(false);
@@ -47,11 +46,16 @@ const ImageGallery = ({ query }) => {
     setImages([]);
     setCurrentPage(1);
     setHasMore(true);
-    fetchImages();
+
+    if (query) {
+      loadImages();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   const handleLoadMore = () => {
-    fetchImages();
+    loadImages();
   };
 
   const handleImageClick = imageUrl => {
