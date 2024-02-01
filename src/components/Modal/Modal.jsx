@@ -4,7 +4,7 @@ import styles from './Modal.module.css';
 
 const Modal = ({ imageUrl, onClose }) => {
   const handleCloseModal = e => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget || e.code === 'Escape') {
       onClose();
     }
   };

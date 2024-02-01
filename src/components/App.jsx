@@ -1,15 +1,19 @@
+// App.jsx
 import React, { useState, useEffect } from 'react';
 import TopBar from './TopBar/TopBar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import styles from './App.module.css';
 import Loader from './Loader/Loader';
 import Button from './Button/Button';
+import Modal from './Modal/Modal';
 
 const App = () => {
   const [query, setQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
 
   const fetchImages = async (query, page) => {
     return fetch(
@@ -24,6 +28,9 @@ const App = () => {
       const response = await fetchImages(query, page);
       if (response.ok) {
         const data = await response.json();
+        if (data.hits.length === 0) {
+          setHasMore(false);
+        }
         if (currentPage === 1) {
           setImages(data.hits);
         } else {
@@ -40,6 +47,7 @@ const App = () => {
   };
 
   useEffect(() => {
+    setHasMore(true);
     loadImages(query, currentPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, currentPage]);
@@ -48,16 +56,25 @@ const App = () => {
     setImages([]);
     setQuery(newQuery);
     setCurrentPage(1);
+    setHasMore(true);
   };
 
   const handleLoadMore = () => {
     setCurrentPage(prevPage => prevPage + 1);
   };
 
+  const handleImageClick = imageUrl => {
+    setSelectedImage(imageUrl);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+  };
+
   return (
     <div className={styles.app}>
       <TopBar onSubmit={handleFormSubmit} />
-      <ImageGallery images={images} />
+      <ImageGallery images={images} onClick={handleImageClick} />
 
       {isLoading && (
         <div className={styles.loaderContainer}>
@@ -65,8 +82,12 @@ const App = () => {
         </div>
       )}
 
-      {images.length > 0 && !isLoading && (
+      {hasMore && images.length > 0 && !isLoading && (
         <Button onLoadMore={handleLoadMore} />
+      )}
+
+      {selectedImage && (
+        <Modal imageUrl={selectedImage} onClose={handleCloseModal} />
       )}
     </div>
   );
